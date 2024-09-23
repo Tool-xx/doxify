@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Результаты поиска</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #0F2027;
+            color: white;
+            font-family: 'Arial', sans-serif;
+            overflow: hidden; /* Отключаем прокрутку */
+        }
+        .container {
+            margin-top: 50px;
+            position: relative; /* Для позиционирования */
+            z-index: 1; /* Увеличиваем порядок наложения */
+        }
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0; /* Под контейнером */
+        }
+        table {
+            color: white;
+        }
+        .btn-primary {
+            background-color: #1E3D59;
+            border: none;
+        }
+        .btn-primary:hover {
+            background-color: #1C3A5A;
+        }
+    </style>
+    <script>
+        // Эффект падающих символов
+        function initMatrixEffect() {
+            const canvas = document.createElement('canvas');
+            document.body.appendChild(canvas);
+            const ctx = canvas.getContext('2d');
+
+            canvas.height = window.innerHeight;
+            canvas.width = window.innerWidth;
+
+            const symbols = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            const fontSize = 10;
+            const columns = Math.floor(canvas.width / fontSize);
+            const drops = Array(columns).fill(1);
+
+            function draw() {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                ctx.fillStyle = '#ff0000'; // Красный цвет
+                ctx.font = fontSize + 'px monospace';
+
+                for (let i = 0; i < drops.length; i++) {
+                    const text = symbols[Math.floor(Math.random() * symbols.length)];
+                    ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                    
+                    if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                        drops[i] = 0;
+                    }
+                    drops[i]++;
+                }
+            }
+
+            setInterval(draw, 50);
+        }
+
+        window.onload = initMatrixEffect; // Запускаем эффект после загрузки страницы
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Результаты поиска</h1>
+        <a href="/" class="btn btn-primary">Назад</a>
+
+        {% if results %}
+        <table class="table table-dark table-bordered table-striped mt-4">
+            <thead>
+                <tr>
+                    {% for key in results[0].keys() %}
+                    <th>{{ key }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for result in results %}
+                <tr>
+                    {% for value in result.values() %}
+                    <td>{{ value }}</td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>Ничего не найдено по вашему запросу.</p>
+        {% endif %}
+    </div>
+
+    <!-- Bootstrap JS (необходим для функционала форм) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
