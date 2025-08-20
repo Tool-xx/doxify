@@ -1,4 +1,3 @@
-Конечно! Вот полный обновленный README на английском:
 
 ```markdown
 # 🔍 Doxify - Advanced Database Search Tool
@@ -356,3 +355,4 @@ python app.py
 **Join thousands of users who trust Doxify for their data search needs!**
 
 ---
+
