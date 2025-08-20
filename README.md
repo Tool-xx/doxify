@@ -37,12 +37,6 @@ pip install -r requirements.txt
 python app.py
 ```
 
-4. Open your browser and navigate to:
-
-```
-http://127.0.0.1:5000
-```
-
 ---
 
 #### Usage:
@@ -56,10 +50,12 @@ http://127.0.0.1:5000
 
 #### Requirements:
 
-- Python 3.7 or higher
-- Flask
-- Pandas
-- Openpyxl (for Excel files)
+- flask>=2.3.0
+- pywebview>=4.0.0
+- pandas>=2.0.0
+- openpyxl>=3.0.0
+- requests>=2.28.0
 - Other dependencies in `requirements.txt`
+
 
 ---
