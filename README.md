@@ -68,7 +68,7 @@
 
 ## 📦 Installation
 
-### Method 1: Quick Install (Recommended)
+### Quick Install
 ```bash
 # Clone the repository
 git clone https://github.com/Tool-xx/doxify.git
@@ -76,3 +76,4 @@ cd doxify
 
 # Install dependencies
 pip install -r requirements.txt
+
