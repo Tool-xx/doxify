@@ -3,165 +3,324 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Поиск по базам данных</title>
+    <title>Doxify - Поиск по базам данных</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        :root {
+            --primary-bg: #0a0a0a;
+            --secondary-bg: #1a1a1a;
+            --accent: #ff2a6d;
+            --accent-hover: #ff4d85;
+            --text-primary: #ffffff;
+            --text-secondary: #b3b3b3;
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
         body {
-            background: linear-gradient(to right, #2C5364, #203A43, #0F2027);
-            color: white;
-            font-family: 'Arial', sans-serif;
-            overflow: hidden; /* Отключаем прокрутку */
+            background: linear-gradient(135deg, var(--primary-bg) 0%, #1a1a1a 50%, #2d2d2d 100%);
+            color: var(--text-primary);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            margin: 0;
+            overflow-x: hidden;
         }
-        .container {
-            margin-top: 50px;
-            position: relative; /* Для позиционирования */
-            z-index: 1; /* Увеличиваем порядок наложения */
+
+        .glass-container {
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2rem;
+            margin: 2rem auto;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
         }
-        canvas {
-            position: absolute;
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .logo {
+            font-size: 3.5rem;
+            font-weight: 800;
+            background: linear-gradient(45deg, var(--accent), #ff6b9d, #00ff88);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 0 0 20px rgba(255, 42, 109, 0.5); }
+            to { text-shadow: 0 0 30px rgba(255, 42, 109, 0.8), 0 0 40px rgba(255, 42, 109, 0.6); }
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+        }
+
+        .btn-neon {
+            background: linear-gradient(45deg, var(--accent), #ff6b9d);
+            border: none;
+            border-radius: 50px;
+            padding: 12px 30px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 42, 109, 0.3);
+        }
+
+        .btn-neon:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 42, 109, 0.4);
+            background: linear-gradient(45deg, var(--accent-hover), #ff85b0);
+        }
+
+        .form-control {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            border-radius: 15px;
+            padding: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: var(--accent);
+            box-shadow: 0 0 0 0.2rem rgba(255, 42, 109, 0.25);
+            color: var(--text-primary);
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .card-header {
+            background: linear-gradient(45deg, rgba(255, 42, 109, 0.2), rgba(0, 255, 136, 0.2));
+            border-bottom: 1px solid var(--border);
+            padding: 1rem;
+            font-weight: 600;
+        }
+
+        .file-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .file-item {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .file-item:last-child {
+            border-bottom: none;
+        }
+
+        .delete-btn {
+            background: transparent;
+            border: none;
+            color: var(--accent);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .delete-btn:hover {
+            color: var(--accent-hover);
+            transform: scale(1.1);
+        }
+
+        .cyber-grid {
+            position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: 0; /* Под контейнером */
+            background: 
+                linear-gradient(rgba(255, 42, 109, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 42, 109, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: -1;
+            opacity: 0.3;
         }
-        .form-control {
-            background-color: #333;
-            color: white;
-            border: 1px solid #555;
+
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
         }
-        .btn-primary {
-            background-color: #1E3D59;
+
+        .floating {
+            animation: floating 3s ease-in-out infinite;
+        }
+
+        @keyframes floating {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .input-group {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 15px;
+            border: 1px solid var(--border);
+        }
+
+        .input-group .form-control,
+        .input-group .form-select {
+            background: transparent;
             border: none;
+            color: var(--text-primary);
         }
-        .btn-primary:hover {
-            background-color: #1C3A5A;
+
+        .input-group .form-select {
+            border-left: 1px solid var(--border);
         }
-        .history-list {
-            background-color: #1E3D59;
-            border-radius: 8px;
-            padding: 15px;
-        }
-        .history-item {
-            padding: 5px 0;
-            color: #D4D4D4;
-        }
-        .file-list {
-            background-color: #1E3D59;
-            border-radius: 8px;
-            padding: 15px;
-        }
-        .file-item {
-            padding: 5px 0;
-            color: #D4D4D4;
-        }
-        .delete-btn {
-            background-color: transparent;
-            border: none;
-            color: red;
-        }
-        .delete-btn:hover {
-            color: darkred;
+
+        .input-group:focus-within {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 0.2rem rgba(255, 42, 109, 0.25);
         }
     </style>
-    <script>
-        // Эффект падающих символов
-        function initMatrixEffect() {
-            const canvas = document.createElement('canvas');
-            document.body.appendChild(canvas);
-            const ctx = canvas.getContext('2d');
-
-            canvas.height = window.innerHeight;
-            canvas.width = window.innerWidth;
-
-            const symbols = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-            const fontSize = 10;
-            const columns = Math.floor(canvas.width / fontSize);
-            const drops = Array(columns).fill(1);
-
-            function draw() {
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                
-                ctx.fillStyle = '#ff0000'; // Красный цвет
-                ctx.font = fontSize + 'px monospace';
-
-                for (let i = 0; i < drops.length; i++) {
-                    const text = symbols[Math.floor(Math.random() * symbols.length)];
-                    ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-                    
-                    if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
-                        drops[i] = 0;
-                    }
-                    drops[i]++;
-                }
-            }
-
-            setInterval(draw, 50);
-        }
-        
-        window.onload = initMatrixEffect; // Запускаем эффект после загрузки страницы
-    </script>
 </head>
 <body>
-    <div class="container">
-        <div class="text-center">
-            <h1>Поиск по базе данных</h1>
-            <p>Загрузите базу данных и найдите нужную информацию</p>
+    <div class="cyber-grid"></div>
+    <div class="particles" id="particles"></div>
+
+    <div class="container glass-container">
+        <div class="header">
+            <div class="logo floating">DOXIFY</div>
+            <p class="subtitle">Мощный поиск по любым базам данных</p>
         </div>
 
         <!-- Форма для загрузки базы данных -->
-        <div class="mt-4">
-            <h3>Загрузить базу данных</h3>
-            <form id="fileUploadForm" action="/select_file" method="POST" enctype="multipart/form-data">
-                <div class="input-group mb-3">
-                    <input type="file" class="form-control" name="file" id="fileInput" accept=".csv,.xlsx,.db,.json,.txt" required>
-                    <button class="btn btn-primary" type="submit">Загрузить</button>
-                </div>
-                <small class="text-warning">Поддерживаемые форматы: .csv, .xlsx, .db, .json, .txt</small>
-            </form>
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-upload me-2"></i>Загрузить базу данных
+            </div>
+            <div class="card-body">
+                <form id="fileUploadForm" action="/select_file" method="POST" enctype="multipart/form-data">
+                    <div class="input-group mb-3">
+                        <input type="file" class="form-control" name="file" id="fileInput" accept=".csv,.xlsx,.db,.json,.txt" required>
+                        <button class="btn btn-neon" type="submit">
+                            <i class="fas fa-cloud-upload-alt me-2"></i>Загрузить
+                        </button>
+                    </div>
+                    <small class="text-secondary">Поддерживаемые форматы: .csv, .xlsx, .db, .json, .txt</small>
+                </form>
+            </div>
         </div>
 
         <!-- Список загруженных баз данных -->
-        <div class="mt-4">
-            <h3>Список загруженных баз данных</h3>
-            <div class="file-list">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-database me-2"></i>Загруженные базы данных
+            </div>
+            <div class="card-body">
                 {% if files %}
-                    <ul>
+                    <ul class="file-list">
                         {% for file in files %}
                         <li class="file-item">
-                            {{ file }}
-                            <!-- Форма для удаления файла -->
+                            <span><i class="fas fa-file me-2"></i>{{ file }}</span>
                             <form id="deleteForm_{{ file }}" action="/delete_file/{{ file }}" method="POST" style="display: inline;">
                                 <button type="button" class="delete-btn" onclick="confirmDelete('{{ file }}')">
-                                    <img src="https://img.icons8.com/fluency/48/000000/delete-forever.png" width="20px" alt="Удалить">
+                                    <i class="fas fa-trash"></i>
                                 </button>
                             </form>
                         </li>
                         {% endfor %}
                     </ul>
                 {% else %}
-                    <p>Файлы базы данных не загружены.</p>
+                    <p class="text-center text-secondary mb-0">
+                        <i class="fas fa-folder-open me-2"></i>Файлы не загружены
+                    </p>
                 {% endif %}
             </div>
         </div>
 
         <!-- Форма поиска -->
-        <div class="mt-4">
-            <h3>Поиск</h3>
-            <form action="/search" method="POST">
-                <div class="input-group mb-3">
-                    <input type="text" class="form-control" name="search_term" placeholder="Введите запрос для поиска" required>
-                    <select class="form-select" name="selected_file" required>
-                        <option value="">Выберите базу данных</option>
-                        {% for file in files %}
-                        <option value="{{ file }}">{{ file }}</option>
-                        {% endfor %}
-                    </select>
-                    <button class="btn btn-primary" type="submit">Найти</button>
-                </div>
-            </form>
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-search me-2"></i>Поиск по базе данных
+            </div>
+            <div class="card-body">
+                <form action="/search" method="POST">
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" name="search_term" placeholder="Введите запрос для поиска..." required>
+                        <select class="form-select" name="selected_file" required style="max-width: 200px;">
+                            <option value="">Выберите базу...</option>
+                            {% for file in files %}
+                            <option value="{{ file }}">{{ file }}</option>
+                            {% endfor %}
+                        </select>
+                        <button class="btn btn-neon" type="submit">
+                            <i class="fas fa-search me-2"></i>Найти
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
+
+    <script>
+        // Эффект частиц
+        function createParticles() {
+            const container = document.getElementById('particles');
+            const colors = ['#ff2a6d', '#00ff88', '#0099ff', '#ffcc00'];
+            
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.style.position = 'absolute';
+                particle.style.width = Math.random() * 5 + 2 + 'px';
+                particle.style.height = particle.style.width;
+                particle.style.background = colors[Math.floor(Math.random() * colors.length)];
+                particle.style.borderRadius = '50%';
+                particle.style.opacity = Math.random() * 0.6 + 0.2;
+                
+                particle.style.left = Math.random() * 100 + 'vw';
+                particle.style.top = Math.random() * 100 + 'vh';
+                
+                container.appendChild(particle);
+                
+                animateParticle(particle);
+            }
+        }
+
+        function animateParticle(particle) {
+            const duration = Math.random() * 10 + 5;
+            particle.style.transition = `all ${duration}s ease-in-out`;
+            
+            setInterval(() => {
+                particle.style.left = Math.random() * 100 + 'vw';
+                particle.style.top = Math.random() * 100 + 'vh';
+            }, duration * 1000);
+        }
+
+        function confirmDelete(filename) {
+            if (confirm(`Удалить базу данных "${filename}"?`)) {
+                document.getElementById(`deleteForm_${filename}`).submit();
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', createParticles);
+    </script>
 </body>
 </html>
