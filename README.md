@@ -1,5 +1,3 @@
-
-```markdown
 # 🔍 Doxify - Advanced Database Search Tool
 
 ![Doxify](https://img.shields.io/badge/Version-2.0.0-ff2a6d) 
@@ -355,4 +353,5 @@ python app.py
 **Join thousands of users who trust Doxify for their data search needs!**
 
 ---
+
 
