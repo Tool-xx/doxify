@@ -1,29 +1,47 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
+import webview
 import os
 import csv
 import json
 import sqlite3
 import pandas as pd
-import webbrowser  # Import the webbrowser module
+from flask import Flask, render_template, request, redirect, url_for, flash
+import threading
+import logging
+import sys
 
+# Полностью отключаем все логи Flask
+logging.getLogger('werkzeug').disabled = True
+logging.getLogger('flask').disabled = True
+
+# Перенаправляем stdout и stderr чтобы подавить вывод
+class HiddenOutput:
+    def write(self, s):
+        pass
+    def flush(self):
+        pass
+
+sys.stdout = HiddenOutput()
+sys.stderr = HiddenOutput()
+
+# Создаем Flask приложение
 app = Flask(__name__)
 app.secret_key = 'supersecretkey'
+app.config['UPLOAD_FOLDER'] = 'uploads'
 
-# Папка для загруженных файлов
-UPLOAD_FOLDER = 'uploads'
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+# Отключаем логирование Flask
+app.logger.disabled = True
 
-# Хранилище для истории поиска
+# Создаем папку для загрузок если её нет
+if not os.path.exists(app.config['UPLOAD_FOLDER']):
+    os.makedirs(app.config['UPLOAD_FOLDER'])
+
 search_history = []
 
-# Главная страница с формами для загрузки и поиска
 @app.route('/')
 def index():
-    # Получаем список всех загруженных баз данных
     uploaded_files = os.listdir(app.config['UPLOAD_FOLDER'])
     return render_template('search.html', history=search_history, files=uploaded_files)
 
-# Маршрут для загрузки базы данных
 @app.route('/select_file', methods=['POST'])
 def select_file():
     if 'file' not in request.files:
@@ -35,13 +53,11 @@ def select_file():
         flash('Нет выбранного файла!')
         return redirect(url_for('index'))
 
-    # Сохраняем загруженный файл в папку
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
     file.save(file_path)
     flash(f'Файл {file.filename} успешно загружен!')
     return redirect(url_for('index'))
 
-# Маршрут для удаления базы данных
 @app.route('/delete_file/<filename>', methods=['POST'])
 def delete_file(filename):
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
@@ -53,7 +69,6 @@ def delete_file(filename):
 
     return redirect(url_for('index'))
 
-# Маршрут для поиска по выбранной базе данных
 @app.route('/search', methods=['POST'])
 def search():
     search_term = request.form['search_term']
@@ -89,11 +104,17 @@ def search():
         elif file_extension == '.db':
             conn = sqlite3.connect(file_path)
             cursor = conn.cursor()
-            cursor.execute("SELECT * FROM your_table_name")  # Замените your_table_name на имя таблицы в базе
-            rows = cursor.fetchall()
-            for row in rows:
-                if search_term.lower() in str(row).lower():
-                    results.append(row)
+            cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
+            tables = cursor.fetchall()
+            if tables:
+                table_name = tables[0][0]
+                cursor.execute(f"SELECT * FROM {table_name}")
+                rows = cursor.fetchall()
+                col_names = [description[0] for description in cursor.description]
+                for row in rows:
+                    if search_term.lower() in str(row).lower():
+                        results.append(dict(zip(col_names, row)))
+            conn.close()
 
         elif file_extension == '.txt':
             with open(file_path, 'r', encoding='utf-8') as txtfile:
@@ -109,17 +130,42 @@ def search():
         flash(f'Ошибка обработки файла: {str(e)}')
         return redirect(url_for('index'))
 
-    # Добавляем запрос в историю
     search_history.append(search_term)
-
     return render_template('results.html', results=results)
 
-# Запуск приложения
+def run_flask():
+    # Запускаем Flask без логов и сообщений
+    from werkzeug.serving import WSGIRequestHandler
+    WSGIRequestHandler.protocol_version = "HTTP/1.1"
+    
+    # Запускаем с минимальным выводом
+    app.run(
+        host='127.0.0.1', 
+        port=5000, 
+        debug=False, 
+        use_reloader=False,
+        threaded=True
+    )
+
 if __name__ == '__main__':
-    if not os.path.exists(app.config['UPLOAD_FOLDER']):
-        os.makedirs(app.config['UPLOAD_FOLDER'])
+    # Запускаем Flask в отдельном потоке
+    flask_thread = threading.Thread(target=run_flask, daemon=True)
+    flask_thread.start()
     
-    # Открыть веб-браузер с вашим сайтом
-    webbrowser.open('http://127.0.0.1:5000/')
+    # Даем серверу время запуститься
+    import time
+    time.sleep(2)
     
-    app.run(debug=True)
+    # Создаем и сразу открываем наше окно
+    window = webview.create_window(
+        'Doxify - Database Search Tool',
+        'http://127.0.0.1:5000/',
+        width=1200,
+        height=800,
+        min_size=(800, 600),
+        text_select=True,
+        confirm_close=True
+    )
+    
+    # Запускаем приложение
+    webview.start()
