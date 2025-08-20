@@ -21,7 +21,7 @@
 1. Clone the repository or download the project:
 
 ```bash
-git clone https://github.com/your-repo/doxify.git
+git clone https://github.com/Tool-xx/doxify.git
 cd doxify
 ```
 
@@ -59,3 +59,4 @@ python app.py
 
 
 ---
+
