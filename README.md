@@ -1,62 +1,78 @@
-### README for Doxify
+# 🔍 Doxify - Advanced Database Search Tool
+
+![Doxify](https://img.shields.io/badge/Version-2.0.0-ff2a6d) 
+![Python](https://img.shields.io/badge/Python-3.8%2B-blue) 
+![License](https://img.shields.io/badge/License-MIT-green)
+![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux%20%7C%20MacOS-lightgrey)
+
+**A powerful desktop application for searching and analyzing data across multiple database formats with advanced search capabilities and professional export features.**
 
 ---
 
-#### Description:
-**Doxify** is a web application for searching and managing local databases. It allows users to upload databases in various formats (CSV, Excel, TXT), perform searches across them, and manage those databases. The app tracks search history and provides the ability to delete databases with confirmation.
+## ✨ Key Features
+
+### 🔍 Advanced Search System
+- **Basic Search** - Simple text search across all data
+- **Regex Search** - Support for regular expressions
+- **Case Sensitive** - Exact character matching
+- **Whole Word** - Exclude partial matches
+- **Fuzzy Search** - Intelligent pattern matching
+
+### 📊 Multi-Format Support
+- **CSV Files** - Comma-separated values
+- **Excel Files** - .xlsx and .xls formats
+- **JSON Data** - Structured data files
+- **SQLite Databases** - .db database files
+- **Text Files** - Plain text documents
+
+### 🌍 Multi-Language Interface
+- **English** - Full English localization
+- **Russian** - Complete Russian support
+- **Easy Switching** - Instant language change
+
+### 📤 Professional Export
+- **PDF Reports** - Professionally formatted documents
+- **Structured Tables** - Preserved formatting and layout
+- **Search Metadata** - Includes search parameters and timestamps
+- **Branded Exports** - Doxify-branded document templates
+
+### 🎨 Modern UI/UX
+- **Cyberpunk Design** - Neon aesthetics with glass morphism
+- **Smooth Animations** - Floating elements and particle effects
+- **Responsive Design** - Adapts to different screen sizes
+- **Dark Theme** - Easy on eyes during long sessions
+
+### ⚡ Additional Features
+- **Search History** - Track previous queries with results
+- **File Management** - Upload/delete database files
+- **Real-time Validation** - Instant feedback and error handling
+- **Cross-Platform** - Works on Windows, Linux, and macOS
 
 ---
 
-#### Key Features:
-- **Search Databases:** Perform text-based searches within uploaded databases.
-- **Supported Formats:** Supports `.csv`, `.xlsx`, `.xls`, and `.txt` database files.
-- **Database Management:** Upload new databases and delete selected ones.
-- **Search History:** Save and view previous search queries.
-- **Simple and intuitive interface.**
+## 🛠 System Requirements
+
+### Minimum Requirements
+- **Python**: 3.8 or higher
+- **RAM**: 4GB minimum (8GB recommended)
+- **Storage**: 100MB free space
+- **OS**: Windows 10+, macOS 10.15+, or Linux Ubuntu 18.04+
+
+### Recommended Specifications
+- **Python**: 3.10+
+- **RAM**: 8GB or more
+- **Storage**: 500MB SSD
+- **GPU**: Hardware acceleration support
 
 ---
 
-#### Installation:
+## 📦 Installation
 
-1. Clone the repository or download the project:
-
+### Method 1: Quick Install (Recommended)
 ```bash
+# Clone the repository
 git clone https://github.com/Tool-xx/doxify.git
 cd doxify
-```
 
-2. Install required dependencies:
-
-```bash
+# Install dependencies
 pip install -r requirements.txt
-```
-
-3. Run the application:
-
-```bash
-python app.py
-```
-
----
-
-#### Usage:
-
-- Once the app is running, you can upload databases via the interface and search for text matches within them.
-- View all uploaded databases on the main page, where a delete button is displayed next to each.
-- When deleting a database, a confirmation prompt will appear.
-- All search queries are saved in the search history.
-
----
-
-#### Requirements:
-
-- flask>=2.3.0
-- pywebview>=4.0.0
-- pandas>=2.0.0
-- openpyxl>=3.0.0
-- requests>=2.28.0
-- Other dependencies in `requirements.txt`
-
-
----
-
