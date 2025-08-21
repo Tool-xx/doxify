@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Doxify - Поиск по базам данных</title>
+    <title>{{ tr.title }}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -63,6 +63,30 @@
             margin-bottom: 2rem;
         }
 
+        .language-switcher {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            z-index: 1000;
+        }
+
+        .btn-language {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            margin: 0 0.2rem;
+        }
+
+        .btn-language:hover, .btn-language.active {
+            background: var(--accent);
+            color: white;
+            transform: translateY(-2px);
+        }
+
         .btn-neon {
             background: linear-gradient(45deg, var(--accent), #ff6b9d);
             border: none;
@@ -71,12 +95,14 @@
             font-weight: 600;
             transition: all 0.3s ease;
             box-shadow: 0 4px 15px rgba(255, 42, 109, 0.3);
+            color: white;
         }
 
         .btn-neon:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(255, 42, 109, 0.4);
             background: linear-gradient(45deg, var(--accent-hover), #ff85b0);
+            color: white;
         }
 
         .form-control {
@@ -113,11 +139,13 @@
             border-bottom: 1px solid var(--border);
             padding: 1rem;
             font-weight: 600;
+            font-size: 1.1rem;
         }
 
         .file-list {
             list-style: none;
             padding: 0;
+            margin: 0;
         }
 
         .file-item {
@@ -126,6 +154,11 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .file-item:hover {
+            background: rgba(255, 255, 255, 0.05);
         }
 
         .file-item:last-child {
@@ -138,11 +171,61 @@
             color: var(--accent);
             cursor: pointer;
             transition: all 0.3s ease;
+            padding: 0.5rem;
+            border-radius: 5px;
         }
 
         .delete-btn:hover {
             color: var(--accent-hover);
             transform: scale(1.1);
+            background: rgba(255, 42, 109, 0.1);
+        }
+
+        .input-group {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 15px;
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+        }
+
+        .input-group .form-control,
+        .input-group .form-select {
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+        }
+
+        .input-group .form-select {
+            border-left: 1px solid var(--border);
+            max-width: 200px;
+        }
+
+        .input-group:focus-within {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 0.2rem rgba(255, 42, 109, 0.25);
+        }
+
+        .advanced-search {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1rem;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            margin-top: 1rem;
+        }
+
+        .form-check-input {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-color: var(--border);
+        }
+
+        .form-check-input:checked {
+            background-color: var(--accent);
+            border-color: var(--accent);
+        }
+
+        .form-check-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
         }
 
         .cyber-grid {
@@ -178,53 +261,77 @@
             100% { transform: translateY(0px); }
         }
 
-        .input-group {
-            background: rgba(255, 255, 255, 0.08);
-            border-radius: 15px;
+        .flash-messages {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 2000;
+            max-width: 400px;
+        }
+
+        .alert {
+            background: var(--card-bg);
             border: 1px solid var(--border);
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            margin-bottom: 0.5rem;
         }
 
-        .input-group .form-control,
-        .input-group .form-select {
-            background: transparent;
-            border: none;
-            color: var(--text-primary);
+        .alert-success {
+            border-left: 4px solid #00ff88;
         }
 
-        .input-group .form-select {
-            border-left: 1px solid var(--border);
-        }
-
-        .input-group:focus-within {
-            border-color: var(--accent);
-            box-shadow: 0 0 0 0.2rem rgba(255, 42, 109, 0.25);
+        .alert-error {
+            border-left: 4px solid #ff2a6d;
         }
     </style>
 </head>
 <body>
+    <div class="language-switcher">
+        <a href="{{ url_for('change_language', language='en') }}" class="btn btn-language {{ 'active' if lang == 'en' }}">
+            <i class="fas fa-globe me-1"></i>EN
+        </a>
+        <a href="{{ url_for('change_language', language='ru') }}" class="btn btn-language {{ 'active' if lang == 'ru' }}">
+            <i class="fas fa-globe me-1"></i>RU
+        </a>
+    </div>
+
     <div class="cyber-grid"></div>
     <div class="particles" id="particles"></div>
+
+    <div class="flash-messages">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'success' if category == 'success' else 'error' }}">
+                        <i class="fas {{ 'fa-check-circle' if category == 'success' else 'fa-exclamation-circle' }} me-2"></i>
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
 
     <div class="container glass-container">
         <div class="header">
             <div class="logo floating">DOXIFY</div>
-            <p class="subtitle">Мощный поиск по любым базам данных</p>
+            <p class="subtitle">{{ tr.search }}</p>
         </div>
 
         <!-- Форма для загрузки базы данных -->
         <div class="card">
             <div class="card-header">
-                <i class="fas fa-upload me-2"></i>Загрузить базу данных
+                <i class="fas fa-upload me-2"></i>{{ tr.upload }}
             </div>
             <div class="card-body">
-                <form id="fileUploadForm" action="/select_file" method="POST" enctype="multipart/form-data">
+                <form id="fileUploadForm" action="{{ url_for('select_file', lang=lang) }}" method="POST" enctype="multipart/form-data">
                     <div class="input-group mb-3">
                         <input type="file" class="form-control" name="file" id="fileInput" accept=".csv,.xlsx,.db,.json,.txt" required>
                         <button class="btn btn-neon" type="submit">
-                            <i class="fas fa-cloud-upload-alt me-2"></i>Загрузить
+                            <i class="fas fa-cloud-upload-alt me-2"></i>{{ tr.upload }}
                         </button>
                     </div>
-                    <small class="text-secondary">Поддерживаемые форматы: .csv, .xlsx, .db, .json, .txt</small>
+                    <small class="text-secondary">Supported formats: .csv, .xlsx, .db, .json, .txt</small>
                 </form>
             </div>
         </div>
@@ -232,16 +339,19 @@
         <!-- Список загруженных баз данных -->
         <div class="card">
             <div class="card-header">
-                <i class="fas fa-database me-2"></i>Загруженные базы данных
+                <i class="fas fa-database me-2"></i>{{ tr.uploaded }}
             </div>
             <div class="card-body">
                 {% if files %}
                     <ul class="file-list">
                         {% for file in files %}
                         <li class="file-item">
-                            <span><i class="fas fa-file me-2"></i>{{ file }}</span>
-                            <form id="deleteForm_{{ file }}" action="/delete_file/{{ file }}" method="POST" style="display: inline;">
-                                <button type="button" class="delete-btn" onclick="confirmDelete('{{ file }}')">
+                            <span>
+                                <i class="fas {{ 'fa-file-excel' if '.xlsx' in file else 'fa-file-csv' if '.csv' in file else 'fa-database' if '.db' in file else 'fa-file-code' if '.json' in file else 'fa-file-alt' }} me-2"></i>
+                                {{ file }}
+                            </span>
+                            <form id="deleteForm_{{ file }}" action="{{ url_for('delete_file', filename=file, lang=lang) }}" method="POST" style="display: inline;">
+                                <button type="button" class="delete-btn" onclick="confirmDelete('{{ file }}', '{{ lang }}')">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </form>
@@ -250,7 +360,7 @@
                     </ul>
                 {% else %}
                     <p class="text-center text-secondary mb-0">
-                        <i class="fas fa-folder-open me-2"></i>Файлы не загружены
+                        <i class="fas fa-folder-open me-2"></i>{{ tr.no_files }}
                     </p>
                 {% endif %}
             </div>
@@ -259,41 +369,98 @@
         <!-- Форма поиска -->
         <div class="card">
             <div class="card-header">
-                <i class="fas fa-search me-2"></i>Поиск по базе данных
+                <i class="fas fa-search me-2"></i>{{ tr.search }}
             </div>
             <div class="card-body">
-                <form action="/search" method="POST">
+                <form action="{{ url_for('search', lang=lang) }}" method="POST" id="searchForm">
                     <div class="input-group mb-3">
-                        <input type="text" class="form-control" name="search_term" placeholder="Введите запрос для поиска..." required>
-                        <select class="form-select" name="selected_file" required style="max-width: 200px;">
-                            <option value="">Выберите базу...</option>
+                        <input type="text" class="form-control" name="search_term" placeholder="{{ tr.search_term }}" required>
+                        <select class="form-select" name="selected_file" required>
+                            <option value="">{{ tr.select_file }}</option>
                             {% for file in files %}
                             <option value="{{ file }}">{{ file }}</option>
                             {% endfor %}
                         </select>
                         <button class="btn btn-neon" type="submit">
-                            <i class="fas fa-search me-2"></i>Найти
+                            <i class="fas fa-search me-2"></i>{{ tr.search_btn }}
                         </button>
+                    </div>
+                    
+                    <!-- Расширенный поиск -->
+                    <div class="advanced-search">
+                        <h6><i class="fas fa-cog me-2"></i>{{ tr.advanced_search }}</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="radio" name="search_type" id="searchSimple" value="simple" checked>
+                                    <label class="form-check-label" for="searchSimple">Simple Search</label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="radio" name="search_type" id="searchRegex" value="regex">
+                                    <label class="form-check-label" for="searchRegex">{{ tr.regex_search }}</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check form-switch mb-2">
+                                    <input class="form-check-input" type="checkbox" name="case_sensitive" id="caseSensitive">
+                                    <label class="form-check-label" for="caseSensitive">{{ tr.case_sensitive }}</label>
+                                </div>
+                                <div class="form-check form-switch mb-2">
+                                    <input class="form-check-input" type="checkbox" name="whole_word" id="wholeWord">
+                                    <label class="form-check-label" for="wholeWord">{{ tr.whole_word }}</label>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </form>
             </div>
         </div>
+
+        <!-- История поиска -->
+        {% if history %}
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-history me-2"></i>Search History
+            </div>
+            <div class="card-body">
+                <div class="history-list">
+                    {% for item in history[-5:]|reverse %}
+                    <div class="history-item mb-2 p-2 rounded" style="background: rgba(255,255,255,0.05);">
+                        <small class="text-secondary">{{ item.timestamp }}</small><br>
+                        <strong>{{ item.term }}</strong> in {{ item.file }}<br>
+                        <span class="text-success">{{ item.results_count }} results</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
     </div>
 
     <script>
+        function confirmDelete(filename, lang) {
+            const message = lang === 'ru' 
+                ? `Удалить базу данных "${filename}"?`
+                : `Delete database "${filename}"?`;
+            
+            if (confirm(message)) {
+                document.getElementById(`deleteForm_${filename}`).submit();
+            }
+        }
+
         // Эффект частиц
         function createParticles() {
             const container = document.getElementById('particles');
             const colors = ['#ff2a6d', '#00ff88', '#0099ff', '#ffcc00'];
             
-            for (let i = 0; i < 50; i++) {
+            for (let i = 0; i < 30; i++) {
                 const particle = document.createElement('div');
                 particle.style.position = 'absolute';
-                particle.style.width = Math.random() * 5 + 2 + 'px';
+                particle.style.width = Math.random() * 4 + 2 + 'px';
                 particle.style.height = particle.style.width;
                 particle.style.background = colors[Math.floor(Math.random() * colors.length)];
                 particle.style.borderRadius = '50%';
-                particle.style.opacity = Math.random() * 0.6 + 0.2;
+                particle.style.opacity = Math.random() * 0.4 + 0.1;
                 
                 particle.style.left = Math.random() * 100 + 'vw';
                 particle.style.top = Math.random() * 100 + 'vh';
@@ -305,7 +472,7 @@
         }
 
         function animateParticle(particle) {
-            const duration = Math.random() * 10 + 5;
+            const duration = Math.random() * 15 + 10;
             particle.style.transition = `all ${duration}s ease-in-out`;
             
             setInterval(() => {
@@ -314,13 +481,17 @@
             }, duration * 1000);
         }
 
-        function confirmDelete(filename) {
-            if (confirm(`Удалить базу данных "${filename}"?`)) {
-                document.getElementById(`deleteForm_${filename}`).submit();
-            }
-        }
+        // Автоскрытие flash сообщений
+        setTimeout(() => {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                alert.style.transition = 'opacity 0.5s ease';
+                alert.style.opacity = '0';
+                setTimeout(() => alert.remove(), 500);
+            });
+        }, 5000);
 
         document.addEventListener('DOMContentLoaded', createParticles);
     </script>
 </body>
-</html>
+</html
