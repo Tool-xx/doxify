@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Результаты поиска - Doxify</title>
+    <title>{{ tr.results_title }} - Doxify</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -51,6 +51,30 @@
             margin-bottom: 0.5rem;
         }
 
+        .language-switcher {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            z-index: 1000;
+        }
+
+        .btn-language {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            margin: 0 0.2rem;
+        }
+
+        .btn-language:hover, .btn-language.active {
+            background: var(--accent);
+            color: white;
+            transform: translateY(-2px);
+        }
+
         .btn-neon {
             background: linear-gradient(45deg, var(--accent), #ff6b9d);
             border: none;
@@ -59,65 +83,111 @@
             font-weight: 600;
             transition: all 0.3s ease;
             box-shadow: 0 4px 15px rgba(255, 42, 109, 0.3);
+            color: white;
+            text-decoration: none;
+            display: inline-block;
         }
 
         .btn-neon:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(255, 42, 109, 0.4);
             background: linear-gradient(45deg, var(--accent-hover), #ff85b0);
+            color: white;
+        }
+
+        .results-count {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 15px;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            border: 1px solid var(--border);
+        }
+
+        .results-count h4 {
+            margin: 0;
+            font-size: 1.3rem;
+        }
+
+        .search-params {
+            background: rgba(255, 42, 109, 0.1);
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid var(--accent);
+        }
+
+        .param-badge {
+            background: rgba(255, 42, 109, 0.2);
+            padding: 4px 8px;
+            border-radius: 12px;
+            margin: 0 5px;
+            font-size: 0.8em;
+        }
+
+        .table-responsive {
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 2rem;
         }
 
         .table-dark {
             background: rgba(0, 0, 0, 0.3);
-            border-radius: 15px;
-            overflow: hidden;
+            border: 1px solid var(--border);
         }
 
         .table-dark th {
             background: linear-gradient(45deg, var(--accent), #ff6b9d);
             border: none;
-            padding: 1rem;
+            padding: 1.2rem;
             font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .table-dark td {
             padding: 1rem;
             border-color: var(--border);
             background: rgba(255, 255, 255, 0.05);
+            font-size: 0.9rem;
+            max-width: 300px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
         .table-dark tr:hover td {
             background: rgba(255, 255, 255, 0.1);
-            transform: scale(1.02);
+            transform: scale(1.01);
             transition: all 0.2s ease;
         }
 
-        .results-count {
+        .export-section {
             background: var(--card-bg);
-            padding: 1rem;
+            padding: 1.5rem;
             border-radius: 15px;
-            margin-bottom: 1rem;
+            border: 1px solid var(--border);
+            margin-bottom: 2rem;
             text-align: center;
         }
 
-        .pulse {
-            animation: pulse 2s infinite;
+        .export-preview {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1rem;
+            border-radius: 10px;
+            margin: 1rem 0;
+            border: 2px dashed var(--accent);
         }
 
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
+        .no-results {
+            text-align: center;
+            padding: 3rem;
         }
 
-        .floating {
-            animation: floating 3s ease-in-out infinite;
-        }
-
-        @keyframes floating {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
-            100% { transform: translateY(0px); }
+        .no-results i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
         }
 
         .cyber-grid {
@@ -142,26 +212,60 @@
             height: 100%;
             z-index: -2;
         }
+
+        .floating {
+            animation: floating 3s ease-in-out infinite;
+        }
+
+        @keyframes floating {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
     </style>
 </head>
 <body>
+    <div class="language-switcher">
+        <a href="{{ url_for('change_language', language='en') }}" class="btn btn-language {{ 'active' if lang == 'en' }}">
+            <i class="fas fa-globe me-1"></i>EN
+        </a>
+        <a href="{{ url_for('change_language', language='ru') }}" class="btn btn-language {{ 'active' if lang == 'ru' }}">
+            <i class="fas fa-globe me-1"></i>RU
+        </a>
+    </div>
+
     <div class="cyber-grid"></div>
     <div class="particles" id="particles"></div>
 
     <div class="container glass-container">
         <div class="header">
             <div class="logo floating">DOXIFY</div>
-            <p class="text-secondary">Результаты поиска в реальном времени</p>
+            <p class="text-secondary">{{ tr.results_title }}</p>
+        </div>
+
+        <div class="search-params">
+            <h5><i class="fas fa-search me-2"></i>Search Parameters</h5>
+            <p><strong>Search Query:</strong> "{{ search_term }}"</p>
+            <p><strong>Search Type:</strong> <span class="param-badge">{{ search_type }}</span></p>
+            <p><strong>Options:</strong> 
+                <span class="param-badge">Case Sensitive: {{ 'Yes' if case_sensitive else 'No' }}</span>
+                <span class="param-badge">Whole Word: {{ 'Yes' if whole_word else 'No' }}</span>
+            </p>
         </div>
 
         <div class="results-count">
-            <h4><i class="fas fa-database me-2"></i>Найдено записей: {{ results|length }}</h4>
+            <h4><i class="fas fa-database me-2"></i>{{ tr.results_count.format(results|length) }}</h4>
         </div>
 
         <div class="text-center mb-4">
-            <a href="/" class="btn btn-neon">
-                <i class="fas fa-arrow-left me-2"></i>Новый поиск
+            <a href="{{ url_for('index', lang=lang) }}" class="btn btn-neon me-3">
+                <i class="fas fa-arrow-left me-2"></i>{{ tr.back }}
             </a>
+            {% if results %}
+            <a href="{{ url_for('export_html', lang=lang, search_term=search_term, search_type=search_type, case_sensitive=case_sensitive, whole_word=whole_word, results=results|tojson) }}" class="btn btn-neon">
+                <i class="fas fa-file-code me-2"></i>{{ tr.export_html }}
+            </a>
+            {% endif %}
         </div>
 
         {% if results %}
@@ -178,18 +282,42 @@
                     {% for result in results %}
                     <tr>
                         {% for value in result.values() %}
-                        <td>{{ value }}</td>
+                        <td title="{{ value }}">{{ value|truncate(50) }}</td>
                         {% endfor %}
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
+
+        <div class="export-section">
+            <h4><i class="fas fa-download me-2"></i>Export Results</h4>
+            <p class="text-secondary mb-3">Download your search results as a beautiful HTML report</p>
+            
+            <div class="export-preview">
+                <h5><i class="fas fa-eye me-2"></i>Export Preview</h5>
+                <p class="text-secondary">Professional report with:</p>
+                <ul class="text-secondary">
+                    <li>Search parameters and metadata</li>
+                    <li>Formatted results table</li>
+                    <li>Doxify branding and styling</li>
+                    <li>Timestamps and export information</li>
+                </ul>
+            </div>
+
+            <a href="{{ url_for('export_html', lang=lang, search_term=search_term, search_type=search_type, case_sensitive=case_sensitive, whole_word=whole_word, results=results|tojson) }}" class="btn btn-neon btn-lg">
+                <i class="fas fa-file-export me-2"></i>Export to HTML
+            </a>
+        </div>
+
         {% else %}
-        <div class="text-center py-5">
+        <div class="no-results">
             <i class="fas fa-search fa-4x text-secondary mb-3"></i>
-            <h4>Ничего не найдено по вашему запросу</h4>
-            <p class="text-secondary">Попробуйте изменить условия поиска</p>
+            <h4>{{ tr.nothing_found }}</h4>
+            <p class="text-secondary">{{ tr.try_again }}</p>
+            <a href="{{ url_for('index', lang=lang) }}" class="btn btn-neon mt-3">
+                <i class="fas fa-arrow-left me-2"></i>{{ tr.back }}
+            </a>
         </div>
         {% endif %}
     </div>
@@ -200,28 +328,26 @@
             const container = document.getElementById('particles');
             const colors = ['#ff2a6d', '#00ff88', '#0099ff', '#ffcc00'];
             
-            for (let i = 0; i < 50; i++) {
+            for (let i = 0; i < 40; i++) {
                 const particle = document.createElement('div');
                 particle.style.position = 'absolute';
-                particle.style.width = Math.random() * 5 + 2 + 'px';
+                particle.style.width = Math.random() * 3 + 1 + 'px';
                 particle.style.height = particle.style.width;
                 particle.style.background = colors[Math.floor(Math.random() * colors.length)];
                 particle.style.borderRadius = '50%';
-                particle.style.opacity = Math.random() * 0.6 + 0.2;
+                particle.style.opacity = Math.random() * 0.3 + 0.1;
                 
-                const size = Math.random() * 100 + 50;
                 particle.style.left = Math.random() * 100 + 'vw';
                 particle.style.top = Math.random() * 100 + 'vh';
                 
                 container.appendChild(particle);
                 
-                // Анимация движения
                 animateParticle(particle);
             }
         }
 
         function animateParticle(particle) {
-            const duration = Math.random() * 10 + 5;
+            const duration = Math.random() * 20 + 15;
             particle.style.transition = `all ${duration}s ease-in-out`;
             
             setInterval(() => {
@@ -230,7 +356,24 @@
             }, duration * 1000);
         }
 
-        document.addEventListener('DOMContentLoaded', createParticles);
+        // Показ полного текста при наведении
+        document.addEventListener('DOMContentLoaded', function() {
+            createParticles();
+            
+            const cells = document.querySelectorAll('td');
+            cells.forEach(cell => {
+                cell.addEventListener('mouseenter', function() {
+                    this.style.whiteSpace = 'normal';
+                    this.style.overflow = 'visible';
+                });
+                
+                cell.addEventListener('mouseleave', function() {
+                    this.style.whiteSpace = 'nowrap';
+                    this.style.overflow = 'hidden';
+                    this.style.textOverflow = 'ellipsis';
+                });
+            });
+        });
     </script>
 </body>
 </html>
