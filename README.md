@@ -309,8 +309,6 @@ pip install -r dev-requirements.txt  # Development tools
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
 ### Third-Party Licenses
 - Flask: BSD License
 - pandas: BSD 3-Clause
@@ -329,9 +327,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ---
 
 ## 📞 Support
-
-### Community
-- [GitHub Discussions](https://github.com/Tool-xx/doxify/discussions)
 
 ### Professional Support
 - **Enterprise**: Contact for commercial support
@@ -353,5 +348,6 @@ python app.py
 **Join thousands of users who trust Doxify for their data search needs!**
 
 ---
+
 
 
